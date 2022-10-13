@@ -3,6 +3,8 @@ package app
 import (
 	"etherenum-api/etherenum-service/api/internal/config"
 	httpController "etherenum-api/etherenum-service/api/internal/controller/http"
+	"etherenum-api/etherenum-service/api/internal/repos"
+	"etherenum-api/etherenum-service/api/internal/service"
 	"etherenum-api/etherenum-service/api/pkg/database"
 	httpserver "etherenum-api/etherenum-service/api/pkg/server"
 	"fmt"
@@ -14,7 +16,7 @@ import (
 )
 
 func Run(config *config.Config) error {
-	_, err := database.NewMongo(database.MongoDBConfig{
+	collection, err := database.NewMongo(database.MongoDBConfig{
 		Name: config.Mongo.Name,
 		Port: config.Mongo.Port,
 		Host: config.Mongo.Host,
@@ -22,11 +24,15 @@ func Run(config *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("error during creating mongoDB connection, %s", err)
 	}
-
+	repository := service.Repos{Transactions: repos.NewTransactionRepo(collection)}
+	services := service.Service{Transaction: service.NewTransactionService(repository)}
 	router := gin.New()
+
 	httpController.New(httpController.Options{
 		Handler: router,
 		Config:  config,
+		Service: services,
+		Repos:   repository,
 	})
 
 	httpServer := httpserver.New(
