@@ -1,6 +1,7 @@
 package http
 
 import (
+	"etherenum-api/etherenum-service/api/internal/entities"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,19 +13,22 @@ type blockChainController struct {
 
 func NewBlockchainRoutes(options ControllerOptions) {
 	r := &blockChainController{Controller{
-		Config: options.Config,
+		Config:  options.Config,
 		Service: options.Service,
-		Repos: options.Repos,
+		Repos:   options.Repos,
 	}}
 
-	p :=options.Handler.Group("/transactions")
+	p := options.Handler.Group("/transactions")
 	{
 		p.GET("/", r.getTransactions)
 	}
 }
 
+type getTransactionsResponse struct {
+	Transactions *[]entities.Transaction
+}
+
 func (b *blockChainController) getTransactions(c *gin.Context) {
-	fmt.Println("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
 	transactions, err := b.Controller.Service.Transaction.GetAll()
 	if err != nil {
 		fmt.Errorf("error on get all transaction, %s", err)
@@ -36,5 +40,5 @@ func (b *blockChainController) getTransactions(c *gin.Context) {
 		c.JSON(http.StatusOK, "Hello world")
 	}
 
-	c.JSON(http.StatusOK, transactions)
+	c.JSON(http.StatusOK, getTransactionsResponse{Transactions: transactions})
 }

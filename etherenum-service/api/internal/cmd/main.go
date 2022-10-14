@@ -7,9 +7,9 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-func main () {
+func main() {
 	var cfg config.Config
-	err :=cleanenv.ReadEnv(&cfg)
+	err := cleanenv.ReadEnv(&cfg)
 	if err != nil {
 		fmt.Errorf("failed to read env, %s", err)
 	}
