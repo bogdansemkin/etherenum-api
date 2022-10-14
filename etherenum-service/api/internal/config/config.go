@@ -4,6 +4,7 @@ type (
 	Config struct {
 		Postgres
 		Mongo
+		Etherscan
 		HTTP
 		RabbitMQ
 	}
@@ -13,6 +14,10 @@ type (
 		Password string `env:"POSTGRESQL_PASSWORD" env-default:"postgres"`
 		Host     string `env:"POSTGRESQL_HOST" env-default:"127.0.0.1"`
 		Database string `env:"POSTGRESQL_DATABASE" env-default:"chat_api"`
+	}
+
+	Etherscan struct {
+		Key string `env:"ETHERSCAN_APIKEY" env-default:"ABIJ85IE2BUBKU24XGXPTKDZMJ7XU8ZJCU"`
 	}
 
 	Mongo struct {

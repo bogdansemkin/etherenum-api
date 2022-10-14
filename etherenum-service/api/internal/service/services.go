@@ -7,17 +7,9 @@ type Service struct {
 }
 
 type TransactionService interface {
-	GetAll() (*transactionsOutput, error)
+	GetAll() (*[]entities.Transaction, error)
 }
 
 type transactionsOutput struct {
-	//ID         string
-	//From       string
-	//To         string
-	//Block      string
-	//Accepts    string
-	//Date       string
-	//Value      string
-	//Commission string
 	transactions *[]entities.Transaction
 }

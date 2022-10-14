@@ -7,5 +7,6 @@ type Repos struct {
 }
 
 type TransactionRepo interface {
-	GetAll()(*[]entities.Transaction, error)
+	GetAll() (*[]entities.Transaction, error)
+	Insert(data []interface{}) error
 }

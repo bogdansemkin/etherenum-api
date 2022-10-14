@@ -16,12 +16,12 @@ var _ service.TransactionRepo = (*transactionRepo)(nil)
 type transactionRepo struct {
 	collection *mongo.Collection
 }
+
 func NewTransactionRepo(collection *mongo.Collection) *transactionRepo {
 	return &transactionRepo{collection: collection}
 }
 
-func (r *transactionRepo) GetAll()(*[]entities.Transaction, error) {
-	fmt.Println("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+func (r *transactionRepo) GetAll() (*[]entities.Transaction, error) {
 	var transactions []entities.Transaction
 
 	cur, err := r.collection.Find(context.TODO(), bson.D{}, options.Find().SetLimit(5))
@@ -42,5 +42,15 @@ func (r *transactionRepo) GetAll()(*[]entities.Transaction, error) {
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
+
 	return &transactions, nil
+}
+
+func (r *transactionRepo) Insert(data []interface{}) error {
+	_, err := r.collection.InsertMany(context.TODO(), data)
+	if err != nil {
+		return fmt.Errorf("error during inserting many fields, %s", err)
+	}
+
+	return nil
 }
