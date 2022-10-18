@@ -1,5 +1,9 @@
 package entities
 
+type Transactions struct {
+	Trans []Transaction
+}
+
 type Transaction struct {
 	Blockhash        string `bson:"blockhash" json:"blockhash"`
 	BlockNumber      string `bson:"block_number" json:"block_number"`
@@ -12,4 +16,5 @@ type Transaction struct {
 	To               string `bson:"to" json:"to"`
 	TransactionIndex string `bson:"transaction_index" json:"transaction_index"`
 	ChainId          string `bson:"chain_id" json:"chain_id"`
+	AcceptNumber     int    `bson:"accept_number" json:"accept_number"`
 }

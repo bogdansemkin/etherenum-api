@@ -7,7 +7,8 @@ type Service struct {
 }
 
 type TransactionService interface {
-	GetAll() (*[]entities.Transaction, error)
+	GetAll(page string) (*[]entities.Transaction, error)
+	GetByFilter(body string) (*entities.Transactions, error)
 }
 
 type transactionsOutput struct {

@@ -7,6 +7,7 @@ import (
 	"etherenum-api/etherenum-service/api/internal/service"
 	"etherenum-api/etherenum-service/api/pkg/database"
 	"etherenum-api/etherenum-service/api/pkg/etherscan"
+	"etherenum-api/etherenum-service/api/pkg/logger"
 	httpserver "etherenum-api/etherenum-service/api/pkg/server"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,7 @@ func Run(config *config.Config) error {
 	repository := service.Repos{Transactions: repos.NewTransactionRepo(collection)}
 	services := service.Service{Transaction: service.NewTransactionService(repository)}
 	etherscanner := etherscan.NewEtherscan(config)
+	logger := logger.NewLogger()
 
 	router := gin.New()
 
@@ -39,24 +41,64 @@ func Run(config *config.Config) error {
 		Repos:   repository,
 	})
 
+	//TODO need to refactor
 	go func() {
 		for {
-			allTransactions, err := etherscanner.GetTransactions()
-			if err != nil {
-				fmt.Errorf("error during getting the transaction, %s", err)
-				return
-			}
+			func() {
+				body, err := etherscanner.GetBlock()
+				logs := logger.GetLogs()
+				if body == nil {
+					return
+				}
+				if logs[len(logs)-1] == body.Result {
+					return
+				}
+				logger.CreateLog(body.Result)
+				fmt.Println(logs)
 
-			trainers := []interface{}{}
-			for i := range allTransactions {
-				trainers = append(trainers, allTransactions[i])
-			}
+				allTransactions, err := etherscanner.GetTransactions(body.Result)
+				if err != nil {
+					fmt.Printf("error during getting the transaction, %s\n", err)
+					return
+				}
 
-			err = repository.Transactions.Insert(trainers)
-			if err != nil {
-				fmt.Errorf("error during inserting, %s", err)
-				return
-			}
+				previousBlockTransactions, err := repository.Transactions.GetByFilter(logs[len(logs)-1])
+				if err != nil {
+					fmt.Printf("error during getting the transaction, %s\n", err)
+				}
+				var transactionz []etherscan.Transaction
+				for i := range previousBlockTransactions.Trans {
+					transactionz = append(transactionz, etherscan.Transaction{
+						Blockhash:        previousBlockTransactions.Trans[i].Blockhash,
+						BlockNumber:      previousBlockTransactions.Trans[i].BlockNumber,
+						From:             previousBlockTransactions.Trans[i].From,
+						Gas:              previousBlockTransactions.Trans[i].Gas,
+						GasPrice:         previousBlockTransactions.Trans[i].GasPrice,
+						Hash:             previousBlockTransactions.Trans[i].Hash,
+						Input:            previousBlockTransactions.Trans[i].Input,
+						Nonce:            previousBlockTransactions.Trans[i].Nonce,
+						To:               previousBlockTransactions.Trans[i].To,
+						TransactionIndex: previousBlockTransactions.Trans[i].TransactionIndex,
+						ChainId:          previousBlockTransactions.Trans[i].ChainId,
+						AcceptNumber:     previousBlockTransactions.Trans[i].AcceptNumber,
+					})
+				}
+				factoredTransactions, err := etherscanner.AcceptIncrement(allTransactions, transactionz)
+
+				if factoredTransactions == nil {
+					factoredTransactions = allTransactions
+				}
+				var trainers []interface{}
+				for i := range factoredTransactions {
+					//fmt.Printf("Transactions hash: %s, iterations: %d\n",factoredTransactions[i].Hash,factoredTransactions[i].AcceptNumber)
+					trainers = append(trainers, factoredTransactions[i])
+				}
+				err = repository.Transactions.Insert(trainers)
+				if err != nil {
+					fmt.Errorf("error during inserting, %s", err)
+					return
+				}
+			}()
 			time.Sleep(400 * time.Millisecond)
 		}
 	}()
