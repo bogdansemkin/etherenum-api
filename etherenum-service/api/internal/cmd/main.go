@@ -11,8 +11,11 @@ func main() {
 	var cfg config.Config
 	err := cleanenv.ReadEnv(&cfg)
 	if err != nil {
-		fmt.Errorf("failed to read env, %s", err)
+		fmt.Printf("failed to read env, %s", err)
 	}
 
-	app.Run(&cfg)
+	err = app.Run(&cfg)
+	if err != nil {
+		fmt.Printf("error during start app, %s", err)
+	}
 }
