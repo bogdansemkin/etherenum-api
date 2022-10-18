@@ -7,6 +7,7 @@ type Repos struct {
 }
 
 type TransactionRepo interface {
-	GetAll() (*[]entities.Transaction, error)
+	GetAll(page int64) (*[]entities.Transaction, error)
+	GetByFilter(body string) (*entities.Transactions, error)
 	Insert(data []interface{}) error
 }
