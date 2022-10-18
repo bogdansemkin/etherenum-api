@@ -66,60 +66,6 @@ func (e *Etherscan) AcceptIncrement(newBlockTransactions, oldBlockTransactions [
 		}
 		i++
 	}
-
-}
-
-type Compare struct {
-	From         string
-	To           string
-	Gas          string
-	GasPrice     string
-	AcceptNumber int
-}
-
-func (e *Etherscan) CompareTransactions(block *Transaction, oldblock *Transactions) bool {
-	compareNewBlock := Compare{
-		From:     block.From,
-		To:       block.To,
-		Gas:      block.Gas,
-		GasPrice: block.GasPrice,
-	}
-	for i := range oldblock.Trans {
-		compareOldBlock := Compare{
-			From:         oldblock.Trans[i].From,
-			To:           oldblock.Trans[i].To,
-			Gas:          oldblock.Trans[i].Gas,
-			GasPrice:     oldblock.Trans[i].GasPrice,
-			AcceptNumber: oldblock.Trans[i].AcceptNumber,
-		}
-
-		if compareNewBlock == compareOldBlock {
-			fmt.Printf("hash new block: %s\n", block.Hash)
-			fmt.Printf("hash old block: %s\n", oldblock.Trans[i].Hash)
-			block.AcceptNumber = compareOldBlock.AcceptNumber + 1
-			return true
-		}
-	}
-	return false
-}
-
-func (e *Etherscan) AcceptIncrement(newBlockTransactions, oldBlockTransactions []Transaction) ([]Transaction, error) {
-	var i int
-	var testBlockTransactions []Transaction
-	for {
-		switch true {
-		case newBlockTransactions == nil || oldBlockTransactions == nil:
-			return nil, fmt.Errorf("nil pointer exception")
-		case e.CompareTransactions(&newBlockTransactions[i], &Transactions{Trans: oldBlockTransactions}):
-			newBlockTransactions[i].AcceptNumber++
-			fmt.Printf("Transactions from: %s, to: %s, iterations: %d\n", newBlockTransactions[i].From, newBlockTransactions[i].To, newBlockTransactions[i].AcceptNumber)
-		case i == len(newBlockTransactions)-1 || i == len(oldBlockTransactions)-1:
-			testBlockTransactions = newBlockTransactions
-			return testBlockTransactions, nil
-		}
-		i++
-	}
-
 }
 
 type Compare struct {
