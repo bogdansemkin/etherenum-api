@@ -10,3 +10,4 @@ type TransactionService interface {
 	GetAll(page string) (*[]entities.Transaction, error)
 	GetByFilter(body string) (*entities.Transactions, error)
 }
+

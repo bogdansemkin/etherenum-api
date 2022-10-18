@@ -17,6 +17,11 @@ type transactionRepo struct {
 	collection *mongo.Collection
 }
 
+type mongoPaginate struct {
+	limit int64
+	page int64
+}
+
 func NewTransactionRepo(collection *mongo.Collection) *transactionRepo {
 	return &transactionRepo{collection: collection}
 }
@@ -75,4 +80,19 @@ func (r *transactionRepo) Insert(data []interface{}) error {
 		return fmt.Errorf("error during inserting many fields, %s", err)
 	}
 	return nil
+}
+
+func newMongoPaginate(limit, page int) *mongoPaginate {
+	return &mongoPaginate{
+		limit: int64(limit),
+		page:  int64(page),
+	}
+}
+
+func (mp *mongoPaginate) getPaginatedOpts() *options.FindOptions {
+	l := mp.limit
+	skip := mp.page*mp.limit - mp.limit
+	fOpt := options.FindOptions{Limit: &l, Skip: &skip}
+
+	return &fOpt
 }
