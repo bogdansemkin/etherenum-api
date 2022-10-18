@@ -69,18 +69,14 @@ func Run(config *config.Config) error {
 				var transactionz []etherscan.Transaction
 				for i := range previousBlockTransactions.Trans {
 					transactionz = append(transactionz, etherscan.Transaction{
-						Blockhash:        previousBlockTransactions.Trans[i].Blockhash,
-						BlockNumber:      previousBlockTransactions.Trans[i].BlockNumber,
-						From:             previousBlockTransactions.Trans[i].From,
-						Gas:              previousBlockTransactions.Trans[i].Gas,
-						GasPrice:         previousBlockTransactions.Trans[i].GasPrice,
-						Hash:             previousBlockTransactions.Trans[i].Hash,
-						Input:            previousBlockTransactions.Trans[i].Input,
-						Nonce:            previousBlockTransactions.Trans[i].Nonce,
-						To:               previousBlockTransactions.Trans[i].To,
-						TransactionIndex: previousBlockTransactions.Trans[i].TransactionIndex,
-						ChainId:          previousBlockTransactions.Trans[i].ChainId,
-						AcceptNumber:     previousBlockTransactions.Trans[i].AcceptNumber,
+
+						BlockNumber:  previousBlockTransactions.Trans[i].BlockNumber,
+						From:         previousBlockTransactions.Trans[i].From,
+						Gas:          previousBlockTransactions.Trans[i].Gas,
+						GasPrice:     previousBlockTransactions.Trans[i].GasPrice,
+						Hash:         previousBlockTransactions.Trans[i].Hash,
+						To:           previousBlockTransactions.Trans[i].To,
+						AcceptNumber: previousBlockTransactions.Trans[i].AcceptNumber,
 					})
 				}
 				factoredTransactions, err := etherscanner.AcceptIncrement(allTransactions, transactionz)

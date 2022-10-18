@@ -35,7 +35,7 @@ type getTransactionsResponse struct {
 
 func (b *blockChainController) getTransactions(c *gin.Context) {
 	var query getTransactionsQuery
-	 err := c.ShouldBindQuery(&query)
+	 err := c.BindQuery(&query)
 	 if err != nil {
 	 	fmt.Printf("error during binding query, %s", err)
 		 return

@@ -11,6 +11,3 @@ type TransactionService interface {
 	GetByFilter(body string) (*entities.Transactions, error)
 }
 
-type transactionsOutput struct {
-	transactions *[]entities.Transaction
-}

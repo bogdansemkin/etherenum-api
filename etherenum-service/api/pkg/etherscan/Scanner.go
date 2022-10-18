@@ -12,6 +12,7 @@ type Result struct {
 	GasLimit     string
 	GasUsed      string
 	Hash         string
+	Timestamp    string
 	Transactions []Transaction
 }
 type (
@@ -33,5 +34,6 @@ type Transaction struct {
 	To               string
 	TransactionIndex string
 	ChainId          string
+	Timestamp        string
 	AcceptNumber     int
 }
