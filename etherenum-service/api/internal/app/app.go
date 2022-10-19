@@ -32,7 +32,7 @@ func Run(config *config.Config) error {
 
 	repository := service.Repos{Transactions: repos.NewTransactionRepo(collection)}
 	services := service.Service{Transaction: service.NewTransactionService(repository, logger)}
-	etherscanner := etherscan.NewEtherscan(config, logger, repository)
+	etherscanner := etherscan.NewEtherscan(config, logger, services)
 
 	router := gin.New()
 
@@ -46,16 +46,11 @@ func Run(config *config.Config) error {
 
 	//TODO need to refactor
 	go func() {
-		var logs []string
 		for {
-			log, err := etherscanner.HandlingTransactions(logs)
+			_, err := etherscanner.InputData()
 			if err != nil {
 				fmt.Errorf("error during handling transactions, %s", err)
 			}
-			for i := range log{
-				logs = append(logs,log[i])
-			}
-			fmt.Println(logs)
 			time.Sleep(400 * time.Millisecond)
 		}
 	}()

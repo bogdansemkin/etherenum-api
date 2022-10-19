@@ -2,6 +2,7 @@ package etherscan
 
 import (
 	"etherenum-api/etherenum-service/api/internal/config"
+	"etherenum-api/etherenum-service/api/internal/entities"
 	"etherenum-api/etherenum-service/api/internal/service"
 	"etherenum-api/etherenum-service/api/pkg/json"
 	"etherenum-api/etherenum-service/api/pkg/logger"
@@ -13,10 +14,10 @@ var _ Scanner = (*etherscan)(nil)
 type etherscan struct {
 	Config *config.Config
 	Logger logger.Logger
-	Repos  service.Repos
+	Repos  service.Service
 }
 
-func NewEtherscan(config *config.Config, logger logger.Logger, repos service.Repos) *etherscan {
+func NewEtherscan(config *config.Config, logger logger.Logger, repos service.Service) *etherscan {
 	return &etherscan{
 		Config: config,
 		Logger: logger,
@@ -60,15 +61,13 @@ func (e *etherscan) GetTransactions(result string) ([]Transaction, error) {
 
 func (e *etherscan) AcceptIncrement(newBlockTransactions, oldBlockTransactions []Transaction) ([]Transaction, error) {
 	var i int
-	var testBlockTransactions []Transaction
 	for {
 		switch true {
 		case newBlockTransactions == nil || oldBlockTransactions == nil:
+			fmt.Println("nil pointer exception")
 			return nil, fmt.Errorf("nil pointer exception")
 		case i == len(newBlockTransactions)-1 || i == len(oldBlockTransactions)-1:
-			testBlockTransactions = newBlockTransactions
-			return testBlockTransactions, nil
-
+			return newBlockTransactions, nil
 		case e.CompareTransactions(&newBlockTransactions[i], &Transactions{Trans: oldBlockTransactions}):
 			newBlockTransactions[i].AcceptNumber++
 		}
@@ -108,69 +107,41 @@ func (e *etherscan) CompareTransactions(block *Transaction, oldblock *Transactio
 	return false
 }
 
-func (e *etherscan) HandlingTransactions(log []string)  ([]string, error) {
-	logger := e.Logger.Named("handlingTransactions")
-
-	var transactions []Transaction
-	var trainers []interface{}
+func (e *etherscan) InputData() ([]string, error) {
+	logger := e.Logger.Named("InputData")
+	var transactions []entities.Transaction
 
 	body, err := e.GetBlock()
 	if body == nil {
 		logger.Error("failed to get block: body is empty. ", "err", err)
 		return nil, fmt.Errorf("failed to get block: body is empty: %s", err)
 	}
-	
 	if err != nil {
 		logger.Error("failed to get block", "err", err)
 		return nil, fmt.Errorf("failed to get block, %s", err)
 	}
-	if len(log) == 0 {
-		log = logger.GetLogs()
-	}
-	if log[len(log)-1] == body.Result {
-		logger.Error("repetitive object on result")
-		return nil, fmt.Errorf("repetitive object on result")
-	}
-	log = logger.CreateLog(body.Result)
-	fmt.Println(logger.GetLogs())
-	logger.Info("logs", log)
-
-	transactionsOutNewBlock, err := e.GetTransactions(body.Result)
+	getTransactions, err := e.GetTransactions(body.Result)
 	if err != nil {
 		logger.Error("error during getting the transaction", "err", err)
 		return nil, fmt.Errorf("error during getting the transaction, %s\n", err)
 	}
 
-	transactionsOutPreviousBlock, err := e.Repos.Transactions.GetByFilter(log[len(log)-1])
-	if err != nil {
-		logger.Error("error during getting the transaction", "err", err)
-		return nil, fmt.Errorf("error during getting the transaction, %s\n", err)
-	}
-
-	for i := range transactionsOutPreviousBlock.Trans {
-		transactions = append(transactions, Transaction{
-			BlockNumber:  transactionsOutPreviousBlock.Trans[i].BlockNumber,
-			From:         transactionsOutPreviousBlock.Trans[i].From,
-			Gas:          transactionsOutPreviousBlock.Trans[i].Gas,
-			GasPrice:     transactionsOutPreviousBlock.Trans[i].GasPrice,
-			Hash:         transactionsOutPreviousBlock.Trans[i].Hash,
-			To:           transactionsOutPreviousBlock.Trans[i].To,
-			Timestamp:    transactionsOutPreviousBlock.Trans[i].Timestamp,
-			AcceptNumber: transactionsOutPreviousBlock.Trans[i].AcceptNumber,
+	for i := range getTransactions {
+		transactions = append(transactions, entities.Transaction{
+			Hash:         getTransactions[i].Hash,
+			From:         getTransactions[i].From,
+			To:           getTransactions[i].To,
+			BlockNumber:  getTransactions[i].BlockNumber,
+			Gas:          getTransactions[i].Gas,
+			GasPrice:     getTransactions[i].GasPrice,
+			Timestamp:    getTransactions[i].Timestamp,
+			AcceptNumber: getTransactions[i].AcceptNumber,
 		})
 	}
-	incrementedTransactions, err := e.AcceptIncrement(transactionsOutNewBlock, transactions)
-	if incrementedTransactions == nil {
-		incrementedTransactions = transactionsOutNewBlock
-	}
-	for i := range incrementedTransactions {
-		trainers = append(trainers, incrementedTransactions[i])
-	}
-
-	err = e.Repos.Transactions.Insert(trainers)
+	_, err = e.Repos.Transaction.Insert(body.Result, transactions)
 	if err != nil {
-		logger.Error("error during inserting", "err", err)
-		return nil, fmt.Errorf("error during inserting, %s\n", err)
+		fmt.Errorf("error on inserting")
+		return nil, err
 	}
-	return log, nil
+	return nil, nil
 }
