@@ -4,6 +4,7 @@ type Scanner interface {
 	GetBlock() (*getBlockNumberBody, error)
 	GetTransactions(result string) ([]Transaction, error)
 	AcceptIncrement(newBlockTransactions, oldBlockTransactions []Transaction) ([]Transaction, error)
+	HandlingTransactions([]string)  ([]string, error)
 }
 
 type Result struct {

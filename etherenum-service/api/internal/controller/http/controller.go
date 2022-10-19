@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"etherenum-api/etherenum-service/api/internal/config"
 	"etherenum-api/etherenum-service/api/internal/service"
+	"etherenum-api/etherenum-service/api/pkg/logger"
 	"fmt"
 	"github.com/DataDog/gostackparse"
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ type Controller struct {
 	Config  *config.Config
 	Service service.Service
 	Repos   service.Repos
+	Logger  logger.Logger
 }
 
 type ControllerOptions struct {
@@ -22,12 +24,14 @@ type ControllerOptions struct {
 	Config  *config.Config
 	Service service.Service
 	Repos   service.Repos
+	Logger  logger.Logger
 }
 type Options struct {
 	Handler *gin.Engine
 	Config  *config.Config
 	Service service.Service
 	Repos   service.Repos
+	Logger  logger.Logger
 }
 
 func New(options Options) {
@@ -36,6 +40,7 @@ func New(options Options) {
 		Service: options.Service,
 		Repos:   options.Repos,
 		Config:  options.Config,
+		Logger:	 options.Logger.Named("HTTPController"),
 	}
 	NewBlockchainRoutes(routerOptions)
 }

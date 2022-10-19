@@ -3,6 +3,7 @@ package config
 type (
 	Config struct {
 		Postgres
+		Log
 		Mongo
 		Etherscan
 		HTTP
@@ -14,6 +15,10 @@ type (
 		Password string `env:"POSTGRESQL_PASSWORD" env-default:"postgres"`
 		Host     string `env:"POSTGRESQL_HOST" env-default:"127.0.0.1"`
 		Database string `env:"POSTGRESQL_DATABASE" env-default:"chat_api"`
+	}
+
+	Log struct {
+		Level string `env:"LOG_LEVEL" env-default:"debug"`
 	}
 
 	Etherscan struct {

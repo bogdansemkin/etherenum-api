@@ -1,14 +1,17 @@
 package service
 
-import "etherenum-api/etherenum-service/api/internal/entities"
+import (
+	"context"
+	"etherenum-api/etherenum-service/api/internal/entities"
+)
 
 type Service struct {
 	Transaction TransactionService
 }
 
 type TransactionService interface {
-	GetAll(page int64) (*[]entities.Transaction, error)
-	GetByFilter(body string) (*entities.Transactions, error)
+	GetAll(ctx context.Context, query int64) (*[]entities.Transaction, error)
+	GetByFilter(ctx context.Context, body string) (*entities.Transactions, error)
 }
 
 type (

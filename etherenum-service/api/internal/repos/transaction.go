@@ -18,7 +18,9 @@ type transactionRepo struct {
 }
 
 func NewTransactionRepo(collection *mongo.Collection) *transactionRepo {
-	return &transactionRepo{collection: collection}
+	return &transactionRepo{
+		collection: collection,
+	}
 }
 
 func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
