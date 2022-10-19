@@ -55,6 +55,7 @@ func Run(config *config.Config) error {
 			for i := range log{
 				logs = append(logs,log[i])
 			}
+			fmt.Println(logs)
 			time.Sleep(400 * time.Millisecond)
 		}
 	}()

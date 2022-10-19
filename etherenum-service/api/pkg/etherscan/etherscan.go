@@ -71,7 +71,6 @@ func (e *etherscan) AcceptIncrement(newBlockTransactions, oldBlockTransactions [
 
 		case e.CompareTransactions(&newBlockTransactions[i], &Transactions{Trans: oldBlockTransactions}):
 			newBlockTransactions[i].AcceptNumber++
-			fmt.Printf("Transactions from: %s, to: %s, iterations: %d\n", newBlockTransactions[i].From, newBlockTransactions[i].To, newBlockTransactions[i].AcceptNumber)
 		}
 		i++
 	}
@@ -102,8 +101,6 @@ func (e *etherscan) CompareTransactions(block *Transaction, oldblock *Transactio
 		}
 
 		if compareNewBlock == compareOldBlock {
-			fmt.Printf("hash new block: %s\n", block.Hash)
-			fmt.Printf("hash old block: %s\n", oldblock.Trans[i].Hash)
 			block.AcceptNumber = compareOldBlock.AcceptNumber + 1
 			return true
 		}
@@ -111,7 +108,7 @@ func (e *etherscan) CompareTransactions(block *Transaction, oldblock *Transactio
 	return false
 }
 
-func (e *etherscan) HandlingTransactions([]string)  ([]string, error) {
+func (e *etherscan) HandlingTransactions(log []string)  ([]string, error) {
 	logger := e.Logger.Named("handlingTransactions")
 
 	var transactions []Transaction
@@ -122,13 +119,14 @@ func (e *etherscan) HandlingTransactions([]string)  ([]string, error) {
 		logger.Error("failed to get block: body is empty. ", "err", err)
 		return nil, fmt.Errorf("failed to get block: body is empty: %s", err)
 	}
-
-
+	
 	if err != nil {
 		logger.Error("failed to get block", "err", err)
 		return nil, fmt.Errorf("failed to get block, %s", err)
 	}
-	log := logger.GetLogs()
+	if len(log) == 0 {
+		log = logger.GetLogs()
+	}
 	if log[len(log)-1] == body.Result {
 		logger.Error("repetitive object on result")
 		return nil, fmt.Errorf("repetitive object on result")
