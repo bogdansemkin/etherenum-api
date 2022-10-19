@@ -16,6 +16,7 @@ func NewBlockchainRoutes(options ControllerOptions) {
 		Config:  options.Config,
 		Service: options.Service,
 		Repos:   options.Repos,
+		Logger:  options.Logger.Named("blockchainRoutes"),
 	}}
 
 	p := options.Handler.Group("/transactions")
@@ -34,22 +35,25 @@ type getTransactionsResponse struct {
 }
 
 func (b *blockChainController) getTransactions(c *gin.Context) (interface{}, *Error) {
+	logger := b.Logger.Named("getTransactions").WithContext(c)
+
 	var query getTransactionsQuery
 	err := c.BindQuery(&query)
 	if err != nil {
-		fmt.Printf("error during binding query, %s", err)
+		logger.Info("error during binding query", "err", err)
 		return nil, &Error{Type: ErrorTypeClient, Message: "error during binding query", Details: err}
 	}
-	fmt.Printf("query, %d\n", query.Page)
+	logger.With("query", "query", query.Page)
+	logger.Debug("query", "query", query.Page)
 
-	transactions, err := b.Controller.Service.Transaction.GetAll(query.Page)
+	transactions, err := b.Controller.Service.Transaction.GetAll(c, query.Page)
 	if err != nil {
 		switch err.(type) {
 		//case service.LessPointerZeroError:
 		//	fmt.Printf("less pointer zero exception, %s\n", err)
 		//	return
 		default:
-			fmt.Printf("error on get all transaction, %s\n", err)
+			logger.Info("error on get all transaction", "err", err)
 			return nil, &Error{Type: ErrorTypeServer, Message: "error during getting all transactions", Details: err}
 		}
 	}
@@ -67,27 +71,29 @@ type getTransactionByFilterResponse struct {
 }
 
 func (b *blockChainController) getTransactionByFilter(c *gin.Context) (interface{}, *Error) {
+	logger := b.Logger.Named("getTransactionByFilter").WithContext(c)
 	var body getTransactionByFilterParams
 
 	err := c.ShouldBindUri(&body)
 	if err != nil {
-		fmt.Printf("error on get transaction by filter, %s\n", err)
+		logger.Info("error on get transaction by filter", "err", err)
 		return nil, &Error{Type: ErrorTypeClient, Message: "error on get transactions by filter", Details: err}
 	}
-	fmt.Printf("body: %s\n", body)
+	logger.With("body", "body", body)
+	logger.Debug("body", "body", body)
 
-	transactions, err := b.Service.Transaction.GetByFilter(body.Filter)
+	transactions, err := b.Service.Transaction.GetByFilter(c, body.Filter)
 	if err != nil {
 		switch err.(type) {
 		case service.NilPointerDataError:
-			fmt.Printf("nil pointer data error, %s\n", err)
+			logger.Info("nil pointer data error", "err", err)
 			return nil, &Error{Type: ErrorTypeClient, Message: "wrong filter for transaction", Details: err}
 		default:
-			fmt.Printf("error during get data by filter, %s\n", err)
+			logger.Info("error during get data by filter", "err", err)
 			return nil, &Error{Type: ErrorTypeServer, Message: "error during getting transaction", Details: err}
 		}
 	}
 
-	fmt.Println("Successfully got transaction(s) by filter")
+	logger.Info("Successfully got transaction(s) by filter")
 	return getTransactionByFilterResponse{Trans: transactions.Trans}, nil
 }
