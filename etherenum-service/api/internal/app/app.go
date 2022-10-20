@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-func Run(config *config.Config) error {
+func Run(config *config.Config, port string) error {
 	logger := logger.NewZapLogger(config.Log.Level)
 
 	collection, err := database.NewMongo(database.MongoDBConfig{
@@ -57,7 +57,7 @@ func Run(config *config.Config) error {
 
 	httpServer := httpserver.New(
 		router,
-		httpserver.Port(config.HTTP.Port),
+		httpserver.Port(port),
 		httpserver.ReadTimeout(time.Second*60),
 		httpserver.WriteTimeout(time.Second*60),
 		httpserver.ShutdownTimeout(time.Second*30),
