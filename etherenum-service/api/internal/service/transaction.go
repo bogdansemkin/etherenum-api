@@ -40,13 +40,17 @@ func (s *transactionService) GetAll(ctx context.Context, query int64) (*[]entiti
 	return transactions, nil
 }
 
-func (s *transactionService) GetByFilter(ctx context.Context, body string) (*entities.Transactions, error) {
+func (s *transactionService) GetByFilter(ctx context.Context, body string, page int64) (*entities.Transactions, error) {
 	logger:= s.logger.
 		Named("GetByFilter").
 		WithContext(ctx).
 		With("body", body)
 
-	transactions, err := s.repos.Transactions.GetByFilter(body)
+	if page < 1 {
+		logger.Info("query is less then 1")
+		page = 1
+	}
+	transactions, err := s.repos.Transactions.GetByFilter(body, page)
 	if err != nil {
 		logger.Error("error during get transactions by filter","err",err)
 		return nil, fmt.Errorf("error during get transactions by filter, %s", err)

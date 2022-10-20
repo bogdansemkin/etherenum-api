@@ -35,5 +35,4 @@ type Transaction struct {
 	TransactionIndex string
 	ChainId          string
 	Timestamp        string
-	AcceptNumber     int
 }
