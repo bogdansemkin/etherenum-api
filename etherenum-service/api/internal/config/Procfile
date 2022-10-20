@@ -1,1 +1,1 @@
-web: bin/golang-heroku
+web: bin/etherenum-api

@@ -23,8 +23,9 @@ func Run(config *config.Config) error {
 
 	collection, err := database.NewMongo(database.MongoDBConfig{
 		Name: config.Mongo.Name,
-		Port: config.Mongo.Port,
-		Host: config.Mongo.Host,
+		User: config.Mongo.User,
+		Pass: config.Mongo.Password,
+		DBname: config.Mongo.DBname,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
