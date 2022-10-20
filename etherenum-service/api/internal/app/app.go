@@ -44,11 +44,10 @@ func Run(config *config.Config) error {
 		Logger:  logger,
 	})
 
-	//TODO need to refactor
 	go func() {
 		var logs []string
 		for {
-			log, err := etherscanner.HandlingTransactions(logs)
+			 err := etherscanner.InputData()
 			if err != nil {
 				fmt.Errorf("error during handling transactions, %s", err)
 			}
@@ -78,7 +77,6 @@ func Run(config *config.Config) error {
 	case err = <-httpServer.Notify():
 		fmt.Printf("app - Run - httpServer.Notify. %s", err)
 	}
-
 	// shutdown http server
 	err = httpServer.Shutdown()
 	if err != nil {
