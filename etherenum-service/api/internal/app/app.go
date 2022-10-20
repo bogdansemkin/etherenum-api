@@ -56,7 +56,7 @@ func Run(config *config.Config) error {
 
 	httpServer := httpserver.New(
 		router,
-		httpserver.Port(config.HTTP.Port),
+		httpserver.Port(os.Getenv("PORT")),
 		httpserver.ReadTimeout(time.Second*60),
 		httpserver.WriteTimeout(time.Second*60),
 		httpserver.ShutdownTimeout(time.Second*30),
