@@ -50,7 +50,7 @@ func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
 	return &transactions, nil
 }
 
-func (r *transactionRepo) GetByFilter(body string) (*entities.Transactions, error) {
+func (r *transactionRepo) GetByFilter(body string, page int64) (*entities.Transactions, error) {
 	var transactions []entities.Transaction
 	filter := bson.D{
 		{"$or", bson.A{
@@ -62,7 +62,7 @@ func (r *transactionRepo) GetByFilter(body string) (*entities.Transactions, erro
 		}},
 	}
 
-	cursor, err := r.collection.Find(context.TODO(), filter)
+	cursor, err := r.collection.Find(context.TODO(), filter, options.Find().SetSkip(5*page).SetLimit(5))
 	if err != nil {
 		return nil, fmt.Errorf("error during finding data by filter, %s", err)
 	}

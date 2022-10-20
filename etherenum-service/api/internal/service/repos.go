@@ -8,7 +8,7 @@ type Repos struct {
 
 type TransactionRepo interface {
 	GetAll(page int64) (*[]entities.Transaction, error)
-	GetByFilter(body string) (*entities.Transactions, error)
+	GetByFilter(body string, page int64) (*entities.Transactions, error)
 	Insert(data []interface{}) error
 	CheckOnDuplicate(body string) bool
 }

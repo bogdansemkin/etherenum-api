@@ -62,6 +62,10 @@ func (b *blockChainController) getTransactions(c *gin.Context) (interface{}, *Er
 	return getTransactionsResponse{Transactions: transactions}, nil
 }
 
+type getTransactionByFilterQuery struct {
+	Page int64 `form:"page" json:"page"`
+}
+
 type getTransactionByFilterParams struct {
 	Filter string `uri:"filter" json:"filter" binding:"required"`
 }
@@ -72,9 +76,17 @@ type getTransactionByFilterResponse struct {
 
 func (b *blockChainController) getTransactionByFilter(c *gin.Context) (interface{}, *Error) {
 	logger := b.Logger.Named("getTransactionByFilter").WithContext(c)
+
+	var query getTransactionByFilterQuery
 	var body getTransactionByFilterParams
 
-	err := c.ShouldBindUri(&body)
+	err := c.BindQuery(&query)
+	if err != nil {
+		logger.Info("error during binding query", "err", err)
+		return nil, &Error{Type: ErrorTypeClient, Message: "error during binding query", Details: err}
+	}
+
+	err = c.ShouldBindUri(&body)
 	if err != nil {
 		logger.Info("error on get transaction by filter", "err", err)
 		return nil, &Error{Type: ErrorTypeClient, Message: "error on get transactions by filter", Details: err}
@@ -82,7 +94,7 @@ func (b *blockChainController) getTransactionByFilter(c *gin.Context) (interface
 	logger.With("body", "body", body)
 	logger.Debug("body", "body", body)
 
-	transactions, err := b.Service.Transaction.GetByFilter(c, body.Filter)
+	transactions, err := b.Service.Transaction.GetByFilter(c, body.Filter, query.Page)
 	if err != nil {
 		switch err.(type) {
 		case service.NilPointerDataError:
