@@ -18,13 +18,14 @@ import (
 	"time"
 )
 
-func Run(config *config.Config) error {
+func Run(config *config.Config, port string) error {
 	logger := logger.NewZapLogger(config.Log.Level)
 
 	collection, err := database.NewMongo(database.MongoDBConfig{
 		Name: config.Mongo.Name,
-		Port: config.Mongo.Port,
-		Host: config.Mongo.Host,
+		User: config.Mongo.User,
+		Pass: config.Mongo.Password,
+		DBname: config.Mongo.DBname,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
@@ -50,13 +51,13 @@ func Run(config *config.Config) error {
 			if err != nil {
 				fmt.Errorf("error during handling transactions, %s", err)
 			}
-			time.Sleep(400 * time.Millisecond)
+			time.Sleep(2 * time.Second)
 		}
 	}()
 
 	httpServer := httpserver.New(
 		router,
-		httpserver.Port(os.Getenv("PORT")),
+		httpserver.Port(port),
 		httpserver.ReadTimeout(time.Second*60),
 		httpserver.WriteTimeout(time.Second*60),
 		httpserver.ShutdownTimeout(time.Second*30),
