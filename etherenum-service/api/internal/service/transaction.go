@@ -55,5 +55,30 @@ func (s *transactionService) GetByFilter(ctx context.Context, body string) (*ent
 		logger.Info("transactions by filter are empty")
 		return nil, NilPointerDataError{}
 	}
+
 	return transactions, nil
+}
+
+func (s *transactionService) Insert(result string, transactions []entities.Transaction) (*entities.Transactions, error) {
+	logger:= s.logger.
+		Named("GetByFilter").
+		With("result", result)
+
+	var trainers []interface{}
+	ok := s.repos.Transactions.CheckOnDuplicate(result)
+	if !ok {
+		fmt.Println("duplicate found")
+		return nil, fmt.Errorf("duplicate found")
+	}
+
+	for i := range transactions {
+		trainers = append(trainers, transactions[i])
+	}
+	err := s.repos.Transactions.Insert(trainers)
+	if err != nil {
+		logger.Info("error during insert data", "err", err)
+		return nil, fmt.Errorf("error during insert data, %s", err)
+	}
+
+	return &entities.Transactions{Trans: transactions}, nil
 }

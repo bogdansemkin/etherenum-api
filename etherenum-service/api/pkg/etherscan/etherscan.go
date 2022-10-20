@@ -2,6 +2,7 @@ package etherscan
 
 import (
 	"etherenum-api/etherenum-service/api/internal/config"
+	"etherenum-api/etherenum-service/api/internal/entities"
 	"etherenum-api/etherenum-service/api/internal/service"
 	"etherenum-api/etherenum-service/api/pkg/json"
 	"etherenum-api/etherenum-service/api/pkg/logger"
@@ -59,7 +60,7 @@ func (e *etherscan) GetTransactions(result string) ([]Transaction, error) {
 	return body.Result.Transactions, nil
 }
 
-func (e *etherscan) InputData() error {
+func (e *etherscan) InputTransactions() error {
 	logger := e.Logger.Named("InputData")
 	var transactions []entities.Transaction
 
@@ -73,39 +74,22 @@ func (e *etherscan) InputData() error {
 		logger.Error("failed to get block", "err", err)
 		return fmt.Errorf("failed to get block, %s", err)
 	}
-	if len(log) == 0 {
-		log = logger.GetLogs()
-	}
-	if log[len(log)-1] == body.Result {
-		logger.Error("repetitive object on result")
-		return nil, fmt.Errorf("repetitive object on result")
-	}
-	log = logger.CreateLog(body.Result)
-	fmt.Println(logger.GetLogs())
-	logger.Info("logs", log)
-
-	transactionsOutNewBlock, err := e.GetTransactions(body.Result)
+	getTransactions, err := e.GetTransactions(body.Result)
 	if err != nil {
 		logger.Error("error during getting the transaction", "err", err)
 		return fmt.Errorf("error during getting the transaction, %s\n", err)
 	}
 
-	transactionsOutPreviousBlock, err := e.Repos.Transactions.GetByFilter(log[len(log)-1])
-	if err != nil {
-		logger.Error("error during getting the transaction", "err", err)
-		return nil, fmt.Errorf("error during getting the transaction, %s\n", err)
-	}
-
-	for i := range transactionsOutPreviousBlock.Trans {
-		transactions = append(transactions, Transaction{
-			BlockNumber:  transactionsOutPreviousBlock.Trans[i].BlockNumber,
-			From:         transactionsOutPreviousBlock.Trans[i].From,
-			Gas:          transactionsOutPreviousBlock.Trans[i].Gas,
-			GasPrice:     transactionsOutPreviousBlock.Trans[i].GasPrice,
-			Hash:         transactionsOutPreviousBlock.Trans[i].Hash,
-			To:           transactionsOutPreviousBlock.Trans[i].To,
-			Timestamp:    transactionsOutPreviousBlock.Trans[i].Timestamp,
-			AcceptNumber: transactionsOutPreviousBlock.Trans[i].AcceptNumber,
+	for i := range getTransactions {
+		transactions = append(transactions, entities.Transaction{
+			Hash:         getTransactions[i].Hash,
+			From:         getTransactions[i].From,
+			To:           getTransactions[i].To,
+			BlockNumber:  getTransactions[i].BlockNumber,
+			Gas:          getTransactions[i].Gas,
+			GasPrice:     getTransactions[i].GasPrice,
+			Timestamp:    getTransactions[i].Timestamp,
+			AcceptNumber: getTransactions[i].AcceptNumber,
 		})
 	}
 	_, err = e.Service.Transaction.Insert(body.Result, transactions)

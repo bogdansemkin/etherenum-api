@@ -3,7 +3,7 @@ package etherscan
 type Scanner interface {
 	GetBlock() (*getBlockNumberBody, error)
 	GetTransactions(result string) ([]Transaction, error)
-	InputData()  error
+	InputTransactions()  error
 }
 
 type Result struct {

@@ -81,3 +81,23 @@ func (r *transactionRepo) Insert(data []interface{}) error {
 	}
 	return nil
 }
+
+func (r *transactionRepo) CheckOnDuplicate(body string) bool {
+	var transactions []entities.Transaction
+
+	filter := bson.D{{"blocknumber", body}}
+
+	cursor, err := r.collection.Find(context.TODO(), filter)
+	if err != nil {
+		return false
+	}
+
+	if err = cursor.All(context.TODO(), &transactions); err != nil {
+		return false
+	}
+
+	if transactions == nil {
+		return true
+	}
+	return false
+}
