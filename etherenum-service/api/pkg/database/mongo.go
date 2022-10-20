@@ -38,8 +38,6 @@ func NewMongo(config MongoDBConfig) (*mongo.Collection, error) {
 	}
 	database := client.Database("etherenum-api")
 	transactionsCollection := database.Collection("transactions")
-	//delete while finished
-	defer transactionsCollection.Drop(context.TODO())
 
 	return transactionsCollection, nil
 }
