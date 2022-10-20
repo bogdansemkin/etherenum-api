@@ -51,7 +51,7 @@ func Run(config *config.Config) error {
 			if err != nil {
 				fmt.Errorf("error during handling transactions, %s", err)
 			}
-			time.Sleep(400 * time.Millisecond)
+			time.Sleep(2 * time.Second)
 		}
 	}()
 
