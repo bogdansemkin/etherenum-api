@@ -46,6 +46,10 @@ func (s *transactionService) GetByFilter(ctx context.Context, body string, page 
 		WithContext(ctx).
 		With("body", body)
 
+	if page < 1 {
+		logger.Info("query is less then 1")
+		page = 1
+	}
 	transactions, err := s.repos.Transactions.GetByFilter(body, page)
 	if err != nil {
 		logger.Error("error during get transactions by filter","err",err)
