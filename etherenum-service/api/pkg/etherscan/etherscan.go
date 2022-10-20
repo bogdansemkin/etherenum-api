@@ -89,7 +89,6 @@ func (e *etherscan) InputTransactions() error {
 			Gas:          getTransactions[i].Gas,
 			GasPrice:     getTransactions[i].GasPrice,
 			Timestamp:    getTransactions[i].Timestamp,
-			AcceptNumber: getTransactions[i].AcceptNumber,
 		})
 	}
 	_, err = e.Service.Transaction.Insert(body.Result, transactions)

@@ -12,5 +12,4 @@ type Transaction struct {
 	Gas          string `bson:"gas" json:"gas"`
 	GasPrice     string `bson:"gasprice" json:"gas_price"`
 	Timestamp    string `bson:"timestamp" json:"timestamp"`
-	AcceptNumber int    `bson:"accept_number" json:"accept_number"`
 }

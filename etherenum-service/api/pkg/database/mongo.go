@@ -20,7 +20,6 @@ type MongoDB struct {
 }
 
 func NewMongo(config MongoDBConfig) (*mongo.Collection, error) {
-	//"mongodb+srv://bogdansemkin:<password>@cluster0.kcby05n.mongodb.net/test"
 	opt := options.Client().ApplyURI(fmt.Sprintf("%s+srv://%s:%s@cluster0.kcby05n.mongodb.net/%s", config.Name, config.User, config.Pass, config.DBname))
 	client, err := mongo.NewClient(opt)
 	if err != nil {
@@ -36,10 +35,9 @@ func NewMongo(config MongoDBConfig) (*mongo.Collection, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error during ping : %s", err)
 	}
+
 	database := client.Database("etherenum-api")
 	transactionsCollection := database.Collection("transactions")
-	//delete while finished
-	defer transactionsCollection.Drop(context.TODO())
 
 	return transactionsCollection, nil
 }
