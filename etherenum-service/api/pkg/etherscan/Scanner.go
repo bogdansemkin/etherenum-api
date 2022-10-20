@@ -1,5 +1,7 @@
 package etherscan
 
+import "time"
+
 type Scanner interface {
 	GetBlock() (*getBlockNumberBody, error)
 	GetTransactions(result string) ([]Transaction, error)
@@ -35,4 +37,5 @@ type Transaction struct {
 	TransactionIndex string
 	ChainId          string
 	Timestamp        string
+	CreateAt         time.Time
 }
