@@ -10,5 +10,5 @@ type TransactionRepo interface {
 	GetAll(page int64) (*[]entities.Transaction, error)
 	GetByFilter(body string, page int64) (*entities.Transactions, error)
 	Insert(data []interface{}) error
-	CheckOnDuplicate(body string) bool
+	CheckOnDuplicate(body int64) bool
 }

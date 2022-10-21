@@ -38,8 +38,7 @@ func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error during decoding bson, %s", err)
 		}
-		//TODO изменить реализацию
-		//плохая реализация для большого объёма данных, потому что размер увеличивается на 2
+
 		transactions = append(transactions, transaction)
 	}
 
@@ -82,7 +81,7 @@ func (r *transactionRepo) Insert(data []interface{}) error {
 	return nil
 }
 
-func (r *transactionRepo) CheckOnDuplicate(body string) bool {
+func (r *transactionRepo) CheckOnDuplicate(body int64) bool {
 	var transactions []entities.Transaction
 
 	filter := bson.D{{"blocknumber", body}}
