@@ -26,7 +26,7 @@ func NewTransactionRepo(collection *mongo.Collection) *transactionRepo {
 func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
 	var transactions []entities.Transaction
 
-	cur, err := r.collection.Find(context.TODO(), bson.D{}, options.Find().SetSkip(5*page).SetLimit(5))
+	cur, err := r.collection.Find(context.TODO(), bson.D{}, options.Find().SetSort(bson.D{{"create_at", -1}}).SetSkip(5*page).SetLimit(5))
 	if err != nil {
 		return nil, fmt.Errorf("error during getting all transactions, %s", err)
 	}
