@@ -12,7 +12,6 @@ type MongoDBConfig struct {
 	User   string
 	Pass   string
 	DBname string
-
 }
 
 type MongoDB struct {
@@ -39,5 +38,7 @@ func NewMongo(config MongoDBConfig) (*mongo.Collection, error) {
 	database := client.Database("etherenum-api")
 	transactionsCollection := database.Collection("transactions")
 
+	//delete on deploy
+	defer transactionsCollection.Drop(context.TODO())
 	return transactionsCollection, nil
 }

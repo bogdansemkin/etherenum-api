@@ -7,6 +7,7 @@ import (
 	"etherenum-api/etherenum-service/api/pkg/json"
 	"etherenum-api/etherenum-service/api/pkg/logger"
 	"fmt"
+	"time"
 )
 
 var _ Scanner = (*etherscan)(nil)
@@ -89,6 +90,7 @@ func (e *etherscan) InputTransactions() error {
 			Gas:          getTransactions[i].Gas,
 			GasPrice:     getTransactions[i].GasPrice,
 			Timestamp:    getTransactions[i].Timestamp,
+			CreateAt:     time.Now(),
 		})
 	}
 	_, err = e.Service.Transaction.Insert(body.Result, transactions)

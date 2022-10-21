@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type Transactions struct {
 	Trans []Transaction
 }
@@ -12,4 +14,5 @@ type Transaction struct {
 	Gas          string `bson:"gas" json:"gas"`
 	GasPrice     string `bson:"gasprice" json:"gas_price"`
 	Timestamp    string `bson:"timestamp" json:"timestamp"`
+	CreateAt     time.Time `bson:"create_at" json:"-"`
 }
