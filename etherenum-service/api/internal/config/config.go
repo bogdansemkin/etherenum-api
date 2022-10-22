@@ -30,6 +30,8 @@ type (
 		User     string `env:"MONGODB_USER" env-default:"bogdansemkin"`
 		Password string `env:"MONGODB_PASSWORD" env-default:"Omebem04"`
 		DBname   string `env:"MONGODB_DBNAME" env-default:"etherenum-api"`
+		Host string `env:"MONGODB_HOST" env-default:"localhost"`
+		Port string `env:"MONGODB_PORT" env-default:"27017"`
 	}
 
 	HTTP struct {

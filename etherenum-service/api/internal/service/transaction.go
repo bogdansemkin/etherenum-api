@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"etherenum-api/etherenum-service/api/internal/entities"
+	"etherenum-api/etherenum-service/api/pkg/commission"
 	"etherenum-api/etherenum-service/api/pkg/logger"
 	"fmt"
 )
@@ -12,12 +13,14 @@ var _ TransactionService = (*transactionService)(nil)
 type transactionService struct {
 	repos  Repos
 	logger logger.Logger
+	calculator *commission.Calculator
 }
 
-func NewTransactionService(repos Repos, logger logger.Logger) *transactionService {
+func NewTransactionService(repos Repos, logger logger.Logger, calculator *commission.Calculator) *transactionService {
 	return &transactionService{
 		repos:  repos,
 		logger: logger,
+		calculator: calculator,
 	}
 }
 
@@ -76,6 +79,7 @@ func (s *transactionService) Insert(result int64, transactions []entities.Transa
 	}
 
 	for i := range transactions {
+		transactions[i].Commission = s.calculator.GetCommission(transactions[i].Gas, transactions[i].GasPrice)
 		trainers = append(trainers, transactions[i])
 	}
 	err := s.repos.Transactions.Insert(trainers)

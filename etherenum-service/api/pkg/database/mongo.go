@@ -8,10 +8,9 @@ import (
 )
 
 type MongoDBConfig struct {
-	Name   string
-	User   string
-	Pass   string
-	DBname string
+	Name string
+	Port string
+	Host string
 }
 
 type MongoDB struct {
@@ -19,7 +18,8 @@ type MongoDB struct {
 }
 
 func NewMongo(config MongoDBConfig) (*mongo.Collection, error) {
-	opt := options.Client().ApplyURI(fmt.Sprintf("%s+srv://%s:%s@cluster0.kcby05n.mongodb.net/%s", config.Name, config.User, config.Pass, config.DBname))
+	opt := options.Client().ApplyURI(fmt.Sprintf("%s://%s:%s", config.Name, config.Host, config.Port))
+	//opt := options.Client().ApplyURI(fmt.Sprintf("%s+srv://%s:%s@cluster0.kcby05n.mongodb.net/%s", config.Name, config.User, config.Pass, config.DBname))
 	client, err := mongo.NewClient(opt)
 	if err != nil {
 		return nil, fmt.Errorf("error during connection to mongo db: %s", err)

@@ -5,6 +5,7 @@ import (
 	httpController "etherenum-api/etherenum-service/api/internal/controller/http"
 	"etherenum-api/etherenum-service/api/internal/repos"
 	"etherenum-api/etherenum-service/api/internal/service"
+	"etherenum-api/etherenum-service/api/pkg/commission"
 	"etherenum-api/etherenum-service/api/pkg/database"
 	"etherenum-api/etherenum-service/api/pkg/etherscan"
 	"etherenum-api/etherenum-service/api/pkg/hex"
@@ -23,17 +24,17 @@ func Run(config *config.Config, port string) error {
 	logger := logger.NewZapLogger(config.Log.Level)
 
 	collection, err := database.NewMongo(database.MongoDBConfig{
-		Name:   config.Mongo.Name,
-		User:   config.Mongo.User,
-		Pass:   config.Mongo.Password,
-		DBname: config.Mongo.DBname,
+		Name: config.Mongo.Name,
+		Port: config.Mongo.Port,
+		Host: config.Mongo.Host,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
 	}
 	converter := hex.NewConverter(logger)
+	calculator := commission.NewCommissionCalculator(converter)
 	repository := service.Repos{Transactions: repos.NewTransactionRepo(collection)}
-	services := service.Service{Transaction: service.NewTransactionService(repository, logger)}
+	services := service.Service{Transaction: service.NewTransactionService(repository, logger, calculator)}
 	etherscanner := etherscan.NewEtherscan(config, logger, services, converter)
 
 	router := gin.New()
@@ -61,7 +62,7 @@ func Run(config *config.Config, port string) error {
 
 	httpServer := httpserver.New(
 		router,
-		httpserver.Port(port),
+		httpserver.Port(/*port*/ config.HTTP.Port),
 		httpserver.ReadTimeout(time.Second*60),
 		httpserver.WriteTimeout(time.Second*60),
 		httpserver.ShutdownTimeout(time.Second*30),
