@@ -5,6 +5,7 @@ import (
 	httpController "etherenum-api/etherenum-service/api/internal/controller/http"
 	"etherenum-api/etherenum-service/api/internal/repos"
 	"etherenum-api/etherenum-service/api/internal/service"
+	"etherenum-api/etherenum-service/api/pkg/commission"
 	"etherenum-api/etherenum-service/api/pkg/database"
 	"etherenum-api/etherenum-service/api/pkg/etherscan"
 	"etherenum-api/etherenum-service/api/pkg/hex"
@@ -32,8 +33,9 @@ func Run(config *config.Config, port string) error {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
 	}
 	converter := hex.NewConverter(logger)
+	calculator := commission.NewCommissionCalculator(converter)
 	repository := service.Repos{Transactions: repos.NewTransactionRepo(collection)}
-	services := service.Service{Transaction: service.NewTransactionService(repository, logger)}
+	services := service.Service{Transaction: service.NewTransactionService(repository, logger, calculator)}
 	etherscanner := etherscan.NewEtherscan(config, logger, services, converter)
 
 	router := gin.New()

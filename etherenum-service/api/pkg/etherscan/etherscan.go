@@ -9,6 +9,7 @@ import (
 	"etherenum-api/etherenum-service/api/pkg/json"
 	"etherenum-api/etherenum-service/api/pkg/logger"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -61,6 +62,8 @@ func (e *etherscan) GetTransactions(result string) ([]entities.Transaction, erro
 	var body GetTransactionsBody
 	var transactions []entities.Transaction
 
+	fmt.Println(fmt.Sprintf("https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=%s&boolean=true&apikey=%s", result, e.Config.Etherscan.Key))
+
 	err := json.GetJson(fmt.Sprintf("https://api.etherscan.io/api?module=proxy&action=eth_getBlockByNumber&tag=%s&boolean=true&apikey=%s", result, e.Config.Etherscan.Key), &body)
 	if err != nil {
 		logger.Error("error during getting json from etherscan", "err", err)
@@ -76,7 +79,8 @@ func (e *etherscan) GetTransactions(result string) ([]entities.Transaction, erro
 			To:          body.Result.Transactions[i].To,
 			BlockNumber: e.Converter.HexaNumberToInteger(body.Result.Transactions[i].BlockNumber),
 			Gas:         body.Result.Transactions[i].Gas,
-			GasPrice:    e.Converter.HexaNumberToInteger(body.Result.Transactions[i].GasPrice),
+			GasPrice:    body.Result.Transactions[i].GasPrice,
+			Value:       e.Converter.BigFloatConverter(body.Result.Transactions[i].Value),
 			Timestamp:   body.Result.Transactions[i].Timestamp,
 			CreateAt:    time.Now(),
 		})
@@ -138,7 +142,7 @@ func (e *etherscan) InitBlocks() error {
 
 		//we can easily change point from 10 block to 1000, like in technical task
 		for i := 0; i <= 10; i++ {
-			*transactions, err = e.GetTransactions(body.Result)
+			*transactions, err = e.GetTransactions(fmt.Sprintf("0x" + strconv.FormatInt(e.Converter.HexaNumberToInteger(body.Result)-int64(i), 16)))
 			if err != nil {
 				logger.Error("error during getting the transaction", "err", err)
 				return fmt.Errorf("error during getting the transaction, %s\n", err)
