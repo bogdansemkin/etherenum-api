@@ -15,5 +15,5 @@ func NewCommissionCalculator(converter *hex.Converter) *Calculator {
 }
 
 func (cc *Calculator) GetCommission(gas, price string) string {
-	return fmt.Sprintf("0x"+strconv.FormatInt(cc.converter.HexaNumberToInteger(gas) * cc.converter.HexaNumberToInteger(price), 16))
+	return fmt.Sprintf("0x" + strconv.FormatInt(cc.converter.HexaNumberToInteger(gas)*cc.converter.HexaNumberToInteger(price), 16))
 }

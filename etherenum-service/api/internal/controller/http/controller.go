@@ -40,7 +40,7 @@ func New(options Options) {
 		Service: options.Service,
 		Repos:   options.Repos,
 		Config:  options.Config,
-		Logger:	 options.Logger.Named("HTTPController"),
+		Logger:  options.Logger.Named("HTTPController"),
 	}
 	NewBlockchainRoutes(routerOptions)
 }

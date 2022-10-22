@@ -142,7 +142,7 @@ func (e *etherscan) InitBlocks() error {
 
 		//we can easily change point from 10 block to 1000, like in technical task
 		for i := 0; i <= 10; i++ {
-			*transactions, err = e.GetTransactions(fmt.Sprintf("0x"+strconv.FormatInt(e.Converter.HexaNumberToInteger(body.Result)-int64(i), 16)))
+			*transactions, err = e.GetTransactions(fmt.Sprintf("0x" + strconv.FormatInt(e.Converter.HexaNumberToInteger(body.Result)-int64(i), 16)))
 			if err != nil {
 				logger.Error("error during getting the transaction", "err", err)
 				return fmt.Errorf("error during getting the transaction, %s\n", err)

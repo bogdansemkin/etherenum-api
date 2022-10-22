@@ -47,7 +47,7 @@ func (c *Converter) BigFloatConverter(hex string) float64 {
 	}
 
 	n2 := uint64(n)
-	f := fmt.Sprintf("%v",*(*float64)(unsafe.Pointer(&n2)))
+	f := fmt.Sprintf("%v", *(*float64)(unsafe.Pointer(&n2)))
 	if len(f) >= 4 {
 		summary, err := strconv.ParseFloat(f[:4], 64)
 		if err != nil {

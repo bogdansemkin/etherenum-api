@@ -43,7 +43,7 @@ type Transaction struct {
 	Input            string
 	Nonce            string
 	To               string
-	Value        string
+	Value            string
 	TransactionIndex string
 	ChainId          string
 	Timestamp        string

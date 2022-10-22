@@ -24,9 +24,10 @@ func Run(config *config.Config, port string) error {
 	logger := logger.NewZapLogger(config.Log.Level)
 
 	collection, err := database.NewMongo(database.MongoDBConfig{
-		Name: config.Mongo.Name,
-		Port: config.Mongo.Port,
-		Host: config.Mongo.Host,
+		Name:   config.Mongo.Name,
+		User:   config.Mongo.User,
+		Pass:   config.Mongo.Password,
+		DBname: config.Mongo.DBname,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
@@ -62,7 +63,7 @@ func Run(config *config.Config, port string) error {
 
 	httpServer := httpserver.New(
 		router,
-		httpserver.Port(/*port*/ config.HTTP.Port),
+		httpserver.Port(port),
 		httpserver.ReadTimeout(time.Second*60),
 		httpserver.WriteTimeout(time.Second*60),
 		httpserver.ShutdownTimeout(time.Second*30),

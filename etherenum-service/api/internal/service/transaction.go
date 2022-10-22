@@ -11,15 +11,15 @@ import (
 var _ TransactionService = (*transactionService)(nil)
 
 type transactionService struct {
-	repos  Repos
-	logger logger.Logger
+	repos      Repos
+	logger     logger.Logger
 	calculator *commission.Calculator
 }
 
 func NewTransactionService(repos Repos, logger logger.Logger, calculator *commission.Calculator) *transactionService {
 	return &transactionService{
-		repos:  repos,
-		logger: logger,
+		repos:      repos,
+		logger:     logger,
 		calculator: calculator,
 	}
 }
