@@ -13,7 +13,7 @@ var _ Logger = (*zapLogger)(nil)
 
 type zapLogger struct {
 	logger *zap.SugaredLogger
-	logs []string
+	logs   []string
 }
 
 func NewZapLogger(level string) *zapLogger {
@@ -79,13 +79,14 @@ func (l *zapLogger) CreateLog(data interface{}) []string {
 	return l.logs
 }
 
-func (l * zapLogger) GetLogs() []string {
+func (l *zapLogger) GetLogs() []string {
 	switch true {
 	case l.logs == nil:
 		l.logs = append(l.logs, "")
 	}
 	return l.logs
 }
+
 // TODO: remove RequestID and make the method generic (how?).
 func (l *zapLogger) WithContext(ctx context.Context) Logger {
 	return l.With("RequestID", ctx.Value("RequestID"))
@@ -111,4 +112,3 @@ func (l *zapLogger) Fatal(message string, args ...interface{}) {
 	l.logger.Fatalw(message, args...)
 	os.Exit(1)
 }
-

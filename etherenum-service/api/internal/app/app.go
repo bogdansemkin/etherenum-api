@@ -7,6 +7,7 @@ import (
 	"etherenum-api/etherenum-service/api/internal/service"
 	"etherenum-api/etherenum-service/api/pkg/database"
 	"etherenum-api/etherenum-service/api/pkg/etherscan"
+	"etherenum-api/etherenum-service/api/pkg/hex"
 	"etherenum-api/etherenum-service/api/pkg/logger"
 	httpserver "etherenum-api/etherenum-service/api/pkg/server"
 	"fmt"
@@ -22,18 +23,18 @@ func Run(config *config.Config, port string) error {
 	logger := logger.NewZapLogger(config.Log.Level)
 
 	collection, err := database.NewMongo(database.MongoDBConfig{
-		Name: config.Mongo.Name,
-		User: config.Mongo.User,
-		Pass: config.Mongo.Password,
+		Name:   config.Mongo.Name,
+		User:   config.Mongo.User,
+		Pass:   config.Mongo.Password,
 		DBname: config.Mongo.DBname,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
 	}
-
+	converter := hex.NewConverter(logger)
 	repository := service.Repos{Transactions: repos.NewTransactionRepo(collection)}
 	services := service.Service{Transaction: service.NewTransactionService(repository, logger)}
-	etherscanner := etherscan.NewEtherscan(config, logger, services)
+	etherscanner := etherscan.NewEtherscan(config, logger, services, converter)
 
 	router := gin.New()
 
@@ -44,10 +45,13 @@ func Run(config *config.Config, port string) error {
 		Repos:   repository,
 		Logger:  logger,
 	})
-
+	err = etherscanner.InitBlocks()
+	if err != nil {
+		return fmt.Errorf("error during init blocks")
+	}
 	go func() {
 		for {
-			 err := etherscanner.InputTransactions()
+			err := etherscanner.InputTransactions()
 			if err != nil {
 				fmt.Errorf("error during handling transactions, %s", err)
 			}

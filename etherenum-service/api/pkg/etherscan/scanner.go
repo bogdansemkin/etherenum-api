@@ -1,11 +1,18 @@
 package etherscan
 
-import "time"
+import (
+	"etherenum-api/etherenum-service/api/internal/entities"
+)
 
 type Scanner interface {
+	//GetBlock - Returns the number of most recent block
 	GetBlock() (*getBlockNumberBody, error)
-	GetTransactions(result string) ([]Transaction, error)
-	InputTransactions()  error
+	//GetTransactions - returns slice of block's transactions
+	GetTransactions(result string) ([]entities.Transaction, error)
+	//InputTransactions - sends transactions to service
+	InputTransactions() error
+	//InitBlocks - init blocks while collection is empty
+	InitBlocks() error
 }
 
 type Result struct {
@@ -17,13 +24,15 @@ type Result struct {
 	Timestamp    string
 	Transactions []Transaction
 }
+
 type (
-	NilSliceError struct { error }
+	NilSliceError struct{ error }
 )
 
 type Transactions struct {
 	Trans []Transaction
 }
+
 type Transaction struct {
 	Blockhash        string
 	BlockNumber      string
@@ -37,5 +46,4 @@ type Transaction struct {
 	TransactionIndex string
 	ChainId          string
 	Timestamp        string
-	CreateAt         time.Time
 }
