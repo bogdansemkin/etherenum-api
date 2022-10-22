@@ -11,8 +11,8 @@ type Transaction struct {
 	From        string    `bson:"from" json:"from"`
 	To          string    `bson:"to" json:"to"`
 	BlockNumber int64     `bson:"blocknumber" json:"block_number"`
-	Gas         string    `bson:"gas" json:"gas"`
-	GasPrice    string    `bson:"gasprice" json:"gas_price"`
+	Gas         string    `bson:"gas" json:"-"`
+	GasPrice    string    `bson:"gasprice" json:"-"`
 	Commission  string    `bson:"commission" json:"commission"`
 	Value       float64   `bson:"value" json:"value"`
 	Timestamp   string    `bson:"timestamp" json:"timestamp"`
