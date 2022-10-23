@@ -64,3 +64,31 @@ func (c *Converter) BigFloatConverter(hex string) float64 {
 	}
 	return summary
 }
+
+func (c *Converter) StringToInt(string string) int64 {
+	logger := c.Logger.
+		Named("StringToFloat").
+		With("string", string)
+
+	s, err := strconv.Atoi(string)
+	if err != nil {
+		logger.Error("failed to parse float ", "err", err)
+		return 0
+	}
+
+	return int64(s)
+}
+
+func (c *Converter) StringToFloat(string string) float64 {
+	logger := c.Logger.
+		Named("StringToFloat").
+		With("string", string)
+
+	s, err := strconv.ParseFloat(string, 64)
+	if err != nil {
+		logger.Error("failed to parse float ", "err", err)
+		return 0
+	}
+
+	return s
+}

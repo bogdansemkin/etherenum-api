@@ -23,8 +23,8 @@ func NewTransactionRepo(collection *mongo.Collection) *transactionRepo {
 	}
 }
 
-func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
-	var transactions []entities.Transaction
+func (r *transactionRepo) GetAll(page int64) (*entities.Transactions, error) {
+	var transactions entities.Transactions
 
 	cur, err := r.collection.Find(context.TODO(), bson.D{}, options.Find().SetSort(bson.D{{"create_at", -1}}).SetSkip(5*page).SetLimit(5))
 	if err != nil {
@@ -39,7 +39,7 @@ func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
 			return nil, fmt.Errorf("error during decoding bson, %s", err)
 		}
 
-		transactions = append(transactions, transaction)
+		transactions.Trans = append(transactions.Trans, transaction)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -51,6 +51,7 @@ func (r *transactionRepo) GetAll(page int64) (*[]entities.Transaction, error) {
 
 func (r *transactionRepo) GetByFilter(body string, page int64) (*entities.Transactions, error) {
 	var transactions []entities.Transaction
+	fmt.Println(body)
 	filter := bson.D{
 		{"$or", bson.A{
 			bson.D{{"hash", body}},
@@ -61,7 +62,7 @@ func (r *transactionRepo) GetByFilter(body string, page int64) (*entities.Transa
 		}},
 	}
 
-	cursor, err := r.collection.Find(context.TODO(), filter, options.Find().SetSkip(5*page).SetLimit(5))
+	cursor, err := r.collection.Find(context.TODO(), filter /*, options.Collection().SetSkip(5*page).SetLimit(5)*/)
 	if err != nil {
 		return nil, fmt.Errorf("error during finding data by filter, %s", err)
 	}
@@ -69,7 +70,7 @@ func (r *transactionRepo) GetByFilter(body string, page int64) (*entities.Transa
 	if err = cursor.All(context.TODO(), &transactions); err != nil {
 		return nil, fmt.Errorf("error during finding data by filter, %s", err)
 	}
-
+	fmt.Println(transactions)
 	return &entities.Transactions{Trans: transactions}, nil
 }
 
@@ -81,7 +82,7 @@ func (r *transactionRepo) Insert(data []interface{}) error {
 	return nil
 }
 
-func (r *transactionRepo) CheckOnDuplicate(body int64) bool {
+func (r *transactionRepo) CheckOnDuplicate(body string) bool {
 	var transactions []entities.Transaction
 
 	filter := bson.D{{"blocknumber", body}}

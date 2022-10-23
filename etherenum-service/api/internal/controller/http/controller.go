@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"etherenum-api/etherenum-service/api/internal/config"
 	"etherenum-api/etherenum-service/api/internal/service"
+	"etherenum-api/etherenum-service/api/pkg/hex"
 	"etherenum-api/etherenum-service/api/pkg/logger"
 	"fmt"
 	"github.com/DataDog/gostackparse"
@@ -13,36 +14,50 @@ import (
 )
 
 type Controller struct {
-	Config  *config.Config
-	Service service.Service
-	Repos   service.Repos
-	Logger  logger.Logger
+	Config    *config.Config
+	Service   service.Service
+	Repos     service.Repos
+	Logger    logger.Logger
+	Converter *hex.Converter
 }
 
 type ControllerOptions struct {
-	Handler *gin.RouterGroup
-	Config  *config.Config
-	Service service.Service
-	Repos   service.Repos
-	Logger  logger.Logger
+	Handler   *gin.RouterGroup
+	Config    *config.Config
+	Service   service.Service
+	Repos     service.Repos
+	Logger    logger.Logger
+	Converter *hex.Converter
 }
 type Options struct {
-	Handler *gin.Engine
-	Config  *config.Config
-	Service service.Service
-	Repos   service.Repos
-	Logger  logger.Logger
+	Handler   *gin.Engine
+	Config    *config.Config
+	Service   service.Service
+	Repos     service.Repos
+	Logger    logger.Logger
+	Converter *hex.Converter
 }
 
 func New(options Options) {
 	routerOptions := ControllerOptions{
-		Handler: options.Handler.Group("/api/v1"),
-		Service: options.Service,
-		Repos:   options.Repos,
-		Config:  options.Config,
-		Logger:  options.Logger.Named("HTTPController"),
+		Handler:   options.Handler.Group("/api/v1"),
+		Service:   options.Service,
+		Repos:     options.Repos,
+		Config:    options.Config,
+		Logger:    options.Logger.Named("HTTPController"),
+		Converter: options.Converter,
 	}
 	NewBlockchainRoutes(routerOptions)
+}
+
+type TransactionResponse struct {
+	Hash        string  `bson:"hash" json:"hash"`
+	From        string  `bson:"from" json:"from"`
+	To          string  `bson:"to" json:"to"`
+	BlockNumber int64   `bson:"blocknumber" json:"block_number"`
+	Commission  string  `bson:"commission" json:"commission"`
+	Value       float64 `bson:"value" json:"value"`
+	Timestamp   string  `bson:"timestamp" json:"timestamp"`
 }
 
 type Error struct {

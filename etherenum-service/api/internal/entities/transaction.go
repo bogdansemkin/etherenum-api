@@ -10,7 +10,7 @@ type Transaction struct {
 	Hash        string    `bson:"hash" json:"hash"`
 	From        string    `bson:"from" json:"from"`
 	To          string    `bson:"to" json:"to"`
-	BlockNumber int64     `bson:"blocknumber" json:"block_number"`
+	BlockNumber string    `bson:"blocknumber" json:"block_number"`
 	Gas         string    `bson:"gas" json:"-"`
 	GasPrice    string    `bson:"gasprice" json:"-"`
 	Commission  string    `bson:"commission" json:"commission"`
