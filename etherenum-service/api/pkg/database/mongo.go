@@ -12,6 +12,8 @@ type MongoDBConfig struct {
 	User   string
 	Pass   string
 	DBname string
+	//Host string
+	//Port string
 }
 
 type MongoDB struct {

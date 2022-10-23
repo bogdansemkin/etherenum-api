@@ -24,7 +24,7 @@ func NewTransactionService(repos Repos, logger logger.Logger, calculator *commis
 	}
 }
 
-func (s *transactionService) GetAll(ctx context.Context, query int64) (*[]entities.Transaction, error) {
+func (s *transactionService) GetAll(ctx context.Context, query int64) (*entities.Transactions, error) {
 	logger := s.logger.
 		Named("GetAll").
 		WithContext(ctx).
@@ -66,7 +66,7 @@ func (s *transactionService) GetByFilter(ctx context.Context, body string, page 
 	return transactions, nil
 }
 
-func (s *transactionService) Insert(result int64, transactions []entities.Transaction) (*entities.Transactions, error) {
+func (s *transactionService) Insert(result string, transactions []entities.Transaction) (*entities.Transactions, error) {
 	logger := s.logger.
 		Named("GetByFilter").
 		With("result", result)

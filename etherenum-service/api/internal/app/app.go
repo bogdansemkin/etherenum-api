@@ -28,6 +28,8 @@ func Run(config *config.Config, port string) error {
 		User:   config.Mongo.User,
 		Pass:   config.Mongo.Password,
 		DBname: config.Mongo.DBname,
+		//Host: config.Mongo.Host,
+		//Port: config.Mongo.Port,
 	})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error during creating mongoDB connection, %s", err))
@@ -46,6 +48,7 @@ func Run(config *config.Config, port string) error {
 		Service: services,
 		Repos:   repository,
 		Logger:  logger,
+		Converter: converter,
 	})
 	err = etherscanner.InitBlocks()
 	if err != nil {

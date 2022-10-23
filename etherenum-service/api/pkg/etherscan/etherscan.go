@@ -72,12 +72,13 @@ func (e *etherscan) GetTransactions(result string) ([]entities.Transaction, erro
 
 	for i := range body.Result.Transactions {
 		body.Result.Transactions[i].Timestamp = body.Result.Timestamp
+		blockNumber := strconv.Itoa(int(e.Converter.HexaNumberToInteger(body.Result.Transactions[i].BlockNumber)))
 
 		transactions = append(transactions, entities.Transaction{
 			Hash:        body.Result.Transactions[i].Hash,
 			From:        body.Result.Transactions[i].From,
 			To:          body.Result.Transactions[i].To,
-			BlockNumber: e.Converter.HexaNumberToInteger(body.Result.Transactions[i].BlockNumber),
+			BlockNumber: blockNumber,
 			Gas:         body.Result.Transactions[i].Gas,
 			GasPrice:    body.Result.Transactions[i].GasPrice,
 			Value:       e.Converter.BigFloatConverter(body.Result.Transactions[i].Value),
@@ -108,7 +109,8 @@ func (e *etherscan) InputTransactions() error {
 		return fmt.Errorf("error during getting the transaction, %s\n", err)
 	}
 
-	_, err = e.Service.Transaction.Insert(e.Converter.HexaNumberToInteger(body.Result), getTransactions)
+	result := strconv.Itoa(int(e.Converter.HexaNumberToInteger(body.Result)))
+	_, err = e.Service.Transaction.Insert(result, getTransactions)
 	if err != nil {
 		logger.Error("error on transaction insert", "err", err)
 		return fmt.Errorf("error on transaction insert, %s", err)
@@ -137,18 +139,19 @@ func (e *etherscan) InitBlocks() error {
 		return fmt.Errorf("error on get all transactions, %s", err)
 	}
 
-	if *transactions == nil {
+	if transactions.Trans == nil {
 		logger.Info("There are any transactions onto database. Init blocks")
 
 		//we can easily change point from 10 block to 1000, like in technical task
 		for i := 0; i <= 10; i++ {
-			*transactions, err = e.GetTransactions(fmt.Sprintf("0x" + strconv.FormatInt(e.Converter.HexaNumberToInteger(body.Result)-int64(i), 16)))
+			transactions.Trans, err = e.GetTransactions(fmt.Sprintf("0x" + strconv.FormatInt(e.Converter.HexaNumberToInteger(body.Result)-int64(i), 16)))
 			if err != nil {
 				logger.Error("error during getting the transaction", "err", err)
 				return fmt.Errorf("error during getting the transaction, %s\n", err)
 			}
 
-			_, err = e.Service.Transaction.Insert(e.Converter.HexaNumberToInteger(body.Result)-int64(i), *transactions)
+			result := strconv.Itoa(int(e.Converter.HexaNumberToInteger(body.Result) - int64(i)))
+			_, err = e.Service.Transaction.Insert(result, transactions.Trans)
 			if err != nil {
 				logger.Error("error on transaction insert", "err", err)
 				return fmt.Errorf("error on transaction insert, %s", err)
